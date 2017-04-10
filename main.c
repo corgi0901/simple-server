@@ -1,10 +1,30 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <signal.h>
 
 #define PORT 8080
 #define WAIT_QUEUE_LEN 5
+
+/* proto type function */
+static void set_signal_handler(int signame);
+static void signal_handler(int signame);
+
+static void set_signal_handler(int signame)
+{
+	if (SIG_ERR == signal(signame, signal_handler)) {
+		fprintf(stderr, "Error. Cannot set signal handler.\n");
+		exit(1);
+	}
+}
+
+static void signal_handler(int signame)
+{
+	printf("simple-server stopped.\n");
+	exit(0);
+}
 
 int main(void) {
 
@@ -15,6 +35,9 @@ int main(void) {
 
 	const char* response = "HTTP1.1 200 OK";
 	
+	set_signal_handler(SIGINT);
+	printf("simple-server started.\n");
+
 	/* make socket */
 	rsock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -36,18 +59,21 @@ int main(void) {
 		return -1;
 	}
 
-	/* listen socket */
-	listen(rsock, WAIT_QUEUE_LEN);
+	while(1) {
+		/* listen socket */
+		listen(rsock, WAIT_QUEUE_LEN);
 
-	/* accept TCP connection from client */
-	len = sizeof(client);
-	wsock = accept(rsock, (struct sockaddr *)&client, &len);
+		/* accept TCP connection from client */
+		len = sizeof(client);
+		wsock = accept(rsock, (struct sockaddr *)&client, &len);
 
-	/* send message */
-	write(wsock, response, sizeof(response));
+		/* send message */
+		write(wsock, response, sizeof(response));
 
-	/* close TCP session */
-	close(wsock);
+		/* close TCP session */
+		close(wsock);
+	}
+
 	close(rsock);
 
 	return 0;
