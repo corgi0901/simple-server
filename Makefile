@@ -1,7 +1,7 @@
 TARGET = simple-server
 SRC = $(shell ls *.c)
 CC = gcc
-CFLAGS = -O2 -g
+CFLAGS = -O0 -g
 
 TARGET: $(SRC)
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
