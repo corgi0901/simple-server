@@ -3,5 +3,6 @@
 
 #define SP " "
 #define CRLF "\r\n"
+#define HEADER_END "\r\n\r\n"
 
 #endif
