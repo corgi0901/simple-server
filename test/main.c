@@ -1,4 +1,5 @@
 #include "../request.h"
+#include <stdio.h>
 
 int main(void) {
 	char req_line[]   = "GET /index.html HTTP1.1";
@@ -10,6 +11,8 @@ int main(void) {
 	parse_request_line(info, req_line);
 	parse_request_header(info, header_str);
 	parse_request_body(info, body_str);
+
+	print_request_info(info);
 
 	release_request_info(info);
 

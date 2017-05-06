@@ -1,18 +1,23 @@
 #include "strutil.h"
+#include <stdio.h>
+#include <ctype.h>
 #include <string.h>
 
-void remove_char(char* dst, char* src, char c)
+void convert_to_lower(char* str)
 {
-	int length = strlen(src);
 	int i = 0;
-	int pos = 0;
-
-	for(i = 0; i < length; i++) {
-		if(src[i] != c) {
-			dst[pos] = src[i];
-			pos++;
-		}
+	for(i = 0; str[i] != '\0'; i++) {
+		str[i] = tolower(str[i]);
 	}
+}
 
-	dst[pos] = '\0';
+int get_delim_pos(char* str, char *delim)
+{
+	char *pos = strstr(str, delim);
+
+	if(pos == NULL) {
+		return -1;
+	} else {
+		return (int)(pos - str);
+	}
 }

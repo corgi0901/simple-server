@@ -8,20 +8,62 @@
 
 #define MAX_HEADER_NUM 16
 
-static header* create_header(char* key, char* value) 
+static header* create_header(char* header_str)
 {
+	int key_len, value_len;
+	char *key, *value;
+	int i = 0;
+
 	header* item = (header*)calloc(sizeof(header), 1);
+
+	key_len = get_delim_pos(header_str, ":");
+	key = (char*)calloc(sizeof(char), key_len + 1);
+	memcpy(key, header_str, key_len);
+
+	for(i = key_len; key[i] == ' '; i--) key[i] = '\0';
+	convert_to_lower(key);
 
 	item->key = (char*)calloc(sizeof(char), strlen(key) + 1);
 	strcpy(item->key, key);
 
-	item->value = (char*)calloc(sizeof(char), strlen(value) + 1);
+	value_len = (size_t)(strlen(header_str) - key_len - 1);
+	value = (char*)calloc(sizeof(char), value_len + 1);
+	memcpy(value, header_str + key_len + 1, value_len);
+
+	for(i = 0; value[i] == ' '; i++){};
+
+	strcpy(value, value + i);
+
+	item->value = (char*)calloc(sizeof(char), value_len + 1);
 	strcpy(item->value, value);
+
+	free(key);
+	free(value);
 
 	return item;
 }
 
+void print_request_info(request_info* info)
+{
+	header_list *item;
 
+	printf("----- Request Line -----\n");
+	printf("method  : %d\n", info->req_line.type);
+	printf("uri     : %s\n", info->req_line.uri);
+	printf("version : %s\n", info->req_line.version);
+
+	printf("----- Request Header -----\n");
+	for(item = info->headers; item != NULL; item = item->next) {
+		printf("%s : %s\n", item->item.key, item->item.value);
+	}
+
+	printf("----- Request Body -----\n");
+	if(info->body != NULL) {
+		printf("%s\n\n", info->body);
+	} else {
+		printf("(NULL)\n\n");
+	}
+}
 
 request_info* create_request_info(void) 
 {
@@ -88,8 +130,9 @@ int parse_request_header(request_info *info, char* header_str)
 	char* token = strtok(header_str, CRLF);
 
 	int i;
-	char *item_str, *key, *value;
+	char *item_str;
 	header *item;
+	header_list *last;
 
 	for(count = 0; token != NULL && count < MAX_HEADER_NUM; count++) {
 		tokens[count] = token;
@@ -98,21 +141,20 @@ int parse_request_header(request_info *info, char* header_str)
 
 	for(i = 0; i < count; i++) {
 		item_str = (char*)calloc(sizeof(char), strlen(tokens[i]) + 1);
-		remove_char(item_str, tokens[i], ' ');
+		strcpy(item_str, tokens[i]);
 
-		key = strtok(item_str, ":");
-		value = strtok(NULL, ":");
-
-		item = create_header(key, value);
+		item = create_header(item_str);
 
 		header_list *p = (header_list*)calloc(sizeof(header_list), 1);
 		p->item = *item;
+		p->next = NULL;
 
 		if(info->headers == NULL){
 			info->headers = p;
+			last = p;
 		} else {
-			p->next = info->headers;
-			info->headers = p;
+			last->next = p;
+			last = p;
 		}
 
 		free(item_str);
@@ -126,5 +168,18 @@ int parse_request_body(request_info *info, char* body)
 	info->body = (char*)calloc(sizeof(char), strlen(body) + 1);
 	strcpy(info->body, body);
 	return 0;
+}
+
+char* get_request_header(request_info *info, char* key)
+{
+	header_list *header = info->headers;
+
+	for(header = info->headers; header != NULL; header = header->next) {
+		if(0 == strcmp(header->item.key, key)) {
+			return header->item.value;
+		}
+	}
+
+	return NULL;
 }
 
