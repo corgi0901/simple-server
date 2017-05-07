@@ -15,13 +15,9 @@ typedef struct request_line {
 	char* version;
 } request_line;
 
-typedef struct header {
+typedef struct header_list {
 	char *key;
 	char *value;
-} header;
-
-typedef struct header_list {
-	header item;
 	struct header_list *next;
 } header_list;
 

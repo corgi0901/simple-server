@@ -11,13 +11,13 @@
 #define MAX_HEADER_NUM 16
 #define UNIT_SIZE 512
 
-static header* create_header(char* header_str)
+static header_list* create_header(char* header_str)
 {
 	int key_len, value_len;
 	char *key, *value;
 	int i = 0;
 
-	header* item = (header*)calloc(sizeof(header), 1);
+	header_list* item = (header_list*)calloc(sizeof(header_list), 1);
 
 	key_len = get_delim_pos(header_str, ":");
 	key = (char*)calloc(sizeof(char), key_len + 1);
@@ -57,7 +57,7 @@ void print_request_info(request_info* info)
 
 	printf("----- Request Header -----\n");
 	for(item = info->headers; item != NULL; item = item->next) {
-		printf("%s : %s\n", item->item.key, item->item.value);
+		printf("%s : %s\n", item->key, item->value);
 	}
 
 	printf("----- Request Body -----\n");
@@ -85,8 +85,8 @@ void release_request_info(request_info *info)
 	/* free request header */
 	p = info->headers;
 	while(p != NULL) {
-		free(p->item.key);
-		free(p->item.value);
+		free(p->key);
+		free(p->value);
 		temp = p;
 		p = p->next;
 		free(temp);
@@ -134,8 +134,7 @@ int parse_request_header(request_info *info, char* header_str)
 
 	int i;
 	char *item_str;
-	header *item;
-	header_list *last;
+	header_list *item, *last;
 
 	for(count = 0; token != NULL && count < MAX_HEADER_NUM; count++) {
 		tokens[count] = token;
@@ -148,16 +147,12 @@ int parse_request_header(request_info *info, char* header_str)
 
 		item = create_header(item_str);
 
-		header_list *p = (header_list*)calloc(sizeof(header_list), 1);
-		p->item = *item;
-		p->next = NULL;
-
 		if(info->headers == NULL){
-			info->headers = p;
-			last = p;
+			info->headers = item;
+			last = item;
 		} else {
-			last->next = p;
-			last = p;
+			last->next = item;
+			last = item;
 		}
 
 		free(item_str);
@@ -178,8 +173,8 @@ char* get_request_header(request_info *info, char* key)
 	header_list *header = info->headers;
 
 	for(header = info->headers; header != NULL; header = header->next) {
-		if(0 == strcmp(header->item.key, key)) {
-			return header->item.value;
+		if(0 == strcmp(header->key, key)) {
+			return header->value;
 		}
 	}
 
