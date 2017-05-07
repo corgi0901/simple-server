@@ -1,6 +1,6 @@
 #include "request.h"
+#include "response.h"
 #include "http.h"
-#include "strutil.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,9 +38,10 @@ int main(void) {
 	int len;
 	int ret;
 
-	const char *response = "HTTP1.1 200 OK";
+	char *response = "Hello World";
 
 	request_info *req_info;
+	response_info *res_info;
 
 	set_signal_handler(SIGINT);
 	printf("simple-server started.\n");
@@ -69,6 +70,7 @@ int main(void) {
 	while(1) {
 
 		req_info = create_request_info();
+		res_info = create_response_info();
 
 		/* listen socket */
 		listen(rsock, WAIT_QUEUE_LEN);
@@ -80,8 +82,12 @@ int main(void) {
 		/* parse request message */
 		get_request(wsock, req_info);
 
+		/* set response message */
+		set_status_line(res_info, "HTTP/1.1", 200, "OK");
+		set_response_body(res_info, response, strlen(response));
+
 		/* send message */
-		write(wsock, response, sizeof(response));
+		send_response(wsock, res_info);
 
 		/* close TCP session */
 		close(wsock);

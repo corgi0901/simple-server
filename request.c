@@ -276,7 +276,6 @@ int get_request(int fd, request_info *req_info)
 	parse_request_body(req_info, data_pool);
 
 end:
-	print_request_info(req_info);
 	memset(data_pool, 0, pool_size + 1);
 	free(data_pool);
 

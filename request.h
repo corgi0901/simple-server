@@ -1,32 +1,7 @@
 #ifndef _REQUEST_H_
 #define _REQUEST_H_
 
-/* supported  method */
-typedef enum method_type {
-	GET = 0,
-	METHOD_NUM
-} method_type;
-
-
-/* structure */
-typedef struct request_line {
-	method_type type;
-	char* uri;
-	char* version;
-} request_line;
-
-typedef struct header_list {
-	char *key;
-	char *value;
-	struct header_list *next;
-} header_list;
-
-typedef struct request_info {
-	request_line req_line;
-	header_list *headers;
-	char *body;
-} request_info;
-
+#include "http.h"
 
 void print_request_info(request_info* info);
 
