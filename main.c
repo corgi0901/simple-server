@@ -14,7 +14,7 @@
 #define PORT 8080
 #define WAIT_QUEUE_LEN 5
 
-#define UNIT_SIZE 128
+#define UNIT_SIZE 512
 
 /* proto type function */
 static void set_signal_handler(int signame);
@@ -43,9 +43,7 @@ static int get_request(int fd, request_info *req_info)
 	int recv_size = 0;
 
 	char* delim_pos = NULL;
-
-	size_t data_len = 0;
-	char*  data_str = NULL;
+	char* remain_data;
 
 	char* content_length;
 	int body_len;
@@ -62,25 +60,31 @@ static int get_request(int fd, request_info *req_info)
 			fprintf(stderr, "Error. read(%d) %s\n", errno, strerror(errno));
 			exit(1);
 		}
-
 		recv_size += len;
 
 		delim_pos = strstr(data_pool, CRLF);
 
 		if(delim_pos) {
-			data_len = (size_t)(delim_pos - data_pool);
-			data_str = (char*)calloc(sizeof(char), data_len + 1);
-			memcpy(data_str, data_pool, data_len);
-			parse_request_line(req_info, data_str);
-			free(data_str);
-			strcpy(data_pool, data_pool + data_len + strlen(CRLF));
-			recv_size -= (data_len + strlen(CRLF));
+			*delim_pos = '\0';
 			break;
 		}
 	}
 
+	parse_request_line(req_info, data_pool);
+
+	remain_data = delim_pos + strlen(CRLF);
+	strcpy(data_pool, remain_data);
+	recv_size = strlen(remain_data);
+
 	/* read request header */
 	while(1) {
+		delim_pos = strstr(data_pool, HEADER_END);
+
+		if(delim_pos) {
+			*delim_pos = '\0';
+			break;
+		}
+
 		if(pool_size < recv_size + UNIT_SIZE) {
 			pool_size += UNIT_SIZE;
 			data_pool = (char*)realloc(data_pool, sizeof(char) * (pool_size + 1));
@@ -91,32 +95,24 @@ static int get_request(int fd, request_info *req_info)
 			fprintf(stderr, "Error. read(%d) %s\n", errno, strerror(errno));
 			exit(1);
 		}
-
 		recv_size += len;
-
-		delim_pos = strstr(data_pool, HEADER_END);
-
-		if(delim_pos) {
-			data_len = (size_t)(delim_pos - data_pool);
-			data_str = (char*)calloc(sizeof(char), data_len + 1);
-			memcpy(data_str, data_pool, data_len);
-			parse_request_header(req_info, data_str);
-			free(data_str);
-			strcpy(data_pool, data_pool + data_len + strlen(HEADER_END));
-			recv_size -= (data_len + strlen(HEADER_END));
-			break;
-		}
 	}
+
+	parse_request_header(req_info, data_pool);
+
+	remain_data = delim_pos + strlen(HEADER_END);
+	strcpy(data_pool, remain_data);
+	recv_size = strlen(remain_data);
 
 	content_length = get_request_header(req_info, "content-length");
 
 	if(content_length == NULL) {
 		goto end;
+	} else {
+		body_len = atoi(content_length);
 	}
 
-	body_len = atoi(content_length);
-
-	while(1) {
+	while(recv_size < body_len) {
 		if(pool_size < recv_size + UNIT_SIZE) {
 			pool_size += UNIT_SIZE;
 			data_pool = (char*)realloc(data_pool, sizeof(char) * (pool_size + 1));
@@ -127,17 +123,10 @@ static int get_request(int fd, request_info *req_info)
 			fprintf(stderr, "Error. read(%d) %s\n", errno, strerror(errno));
 			exit(1);
 		}
-
 		recv_size += len;
-
-		if(recv_size >= body_len) {
-			data_str = (char*)calloc(sizeof(char), body_len + 1);
-			memcpy(data_str, data_pool, body_len);
-			parse_request_body(req_info, data_str);
-			free(data_str);
-			break;
-		}
 	}
+
+	parse_request_body(req_info, data_pool);
 
 end:
 	print_request_info(req_info);
