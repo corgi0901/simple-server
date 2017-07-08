@@ -2,7 +2,8 @@
 #include "response.h"
 #include "strutil.h"
 #include <string.h>
-#include <malloc.h>
+#include <stdio.h>
+#include <unistd.h>
 
 response_info* create_response_info(void)
 {
@@ -47,7 +48,7 @@ int add_response_header(response_info *info, char* key, char* value)
 int set_response_body(response_info *info, char* body, size_t size)
 {
 	char size_str[16];
-	sprintf(size_str, "%d", size);
+	sprintf(size_str, "%zu", size);
 
 	add_response_header(info, "content-length", size_str);
 

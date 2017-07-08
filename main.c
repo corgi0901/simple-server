@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <signal.h>
+#include <unistd.h>
 
 #define PORT 8080
 #define WAIT_QUEUE_LEN 5
@@ -35,7 +36,7 @@ int main(void) {
 
 	int rsock, wsock;
 	struct sockaddr_in addr, client;
-	int len;
+	socklen_t len;
 	int ret;
 
 	char *response = "Hello World";
