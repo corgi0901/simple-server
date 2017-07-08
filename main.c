@@ -39,7 +39,7 @@ int main(void) {
 	socklen_t len;
 	int ret;
 
-	char *response = "Hello World";
+	char *response = "Hello World ! Let's enjoy coding!";
 
 	request_info *req_info;
 	response_info *res_info;

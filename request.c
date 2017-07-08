@@ -23,7 +23,7 @@ static header_list* create_header(char* header_str)
 	key = (char*)calloc(sizeof(char), key_len + 1);
 	memcpy(key, header_str, key_len);
 
-	for(i = key_len; key[i] == ' '; i--) key[i] = '\0';
+	strip(key);
 	convert_to_lower(key);
 
 	item->key = (char*)calloc(sizeof(char), strlen(key) + 1);
@@ -33,9 +33,7 @@ static header_list* create_header(char* header_str)
 	value = (char*)calloc(sizeof(char), value_len + 1);
 	memcpy(value, header_str + key_len + 1, value_len);
 
-	for(i = 0; value[i] == ' '; i++){};
-
-	strcpy(value, value + i);
+	strip(value);
 
 	item->value = (char*)calloc(sizeof(char), value_len + 1);
 	strcpy(item->value, value);
@@ -220,7 +218,11 @@ int get_request(int fd, request_info *req_info)
 	parse_request_line(req_info, data_pool);
 
 	remain_data = delim_pos + strlen(CRLF);
-	strcpy(data_pool, remain_data);
+	char* tmp = (char*)calloc(sizeof(char), strlen(remain_data) + 1);
+	strcpy(tmp, remain_data);
+	strcpy(data_pool, tmp);
+	free(tmp);
+
 	recv_size = strlen(remain_data);
 
 	/* read request header */
