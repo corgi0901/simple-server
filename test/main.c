@@ -3,7 +3,7 @@
 
 int main(void) {
 	char req_line[]   = "GET /index.html HTTP1.1";
-	char header_str[] = "aaa : bbb\r\nccc:ddd\r\neee : fff";
+	char header_str[] = "aaa : bbb\r\nccc:   ddd \r\neee : fff";
 	char body_str[]   = "Hello World";
 
 	request_info *info = create_request_info();
