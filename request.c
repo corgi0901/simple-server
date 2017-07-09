@@ -1,6 +1,7 @@
 #include "http.h"
 #include "request.h"
 #include "strutil.h"
+#include "debug.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -215,6 +216,7 @@ int get_request(int fd, request_info *req_info)
 		}
 	}
 
+	DPRINTF("--- request-line ---\n%s\n", data_pool);
 	parse_request_line(req_info, data_pool);
 
 	remain_data = delim_pos + strlen(CRLF);
@@ -247,6 +249,7 @@ int get_request(int fd, request_info *req_info)
 		recv_size += len;
 	}
 
+	DPRINTF("--- request header ---\n%s\n", data_pool);
 	parse_request_header(req_info, data_pool);
 
 	remain_data = delim_pos + strlen(HEADER_END);
@@ -275,6 +278,7 @@ int get_request(int fd, request_info *req_info)
 		recv_size += len;
 	}
 
+	DPRINTF("--- request body ---\n%s\n", data_pool);
 	parse_request_body(req_info, data_pool);
 
 end:
