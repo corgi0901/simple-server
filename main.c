@@ -71,9 +71,6 @@ int main(void) {
 
 	while(1) {
 
-		req_info = create_request_info();
-		res_info = create_response_info();
-
 		/* listen socket */
 		listen(rsock, WAIT_QUEUE_LEN);
 
@@ -82,9 +79,11 @@ int main(void) {
 		wsock = accept(rsock, (struct sockaddr *)&client, &len);
 
 		/* parse request message */
+		req_info = create_request_info();
 		get_request(wsock, req_info);
 
 		/* set response message */
+		res_info = create_response_info();
 		set_status_line(res_info, "HTTP/1.1", 200, "OK");
 		set_response_body(res_info, response, strlen(response));
 
