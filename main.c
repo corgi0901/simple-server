@@ -21,7 +21,8 @@ static void signal_handler(int signame);
 
 static void set_signal_handler(int signame)
 {
-	if (SIG_ERR == signal(signame, signal_handler)) {
+	if (SIG_ERR == signal(signame, signal_handler))
+	{
 		fprintf(stderr, "Error. Cannot set signal handler.\n");
 		exit(1);
 	}
@@ -33,7 +34,8 @@ static void signal_handler(int signame)
 	exit(0);
 }
 
-int main(void) {
+int main(void)
+{
 
 	int rsock, wsock;
 	struct sockaddr_in addr, client;
@@ -51,26 +53,28 @@ int main(void) {
 	/* make socket */
 	rsock = socket(AF_INET, SOCK_STREAM, 0);
 
-	if (rsock < 0) {
+	if (rsock < 0)
+	{
 		fprintf(stderr, "Error. Cannot make socket\n");
 		return -1;
 	}
 
 	/* socket setting */
-	addr.sin_family      = AF_INET;
-	addr.sin_port        = htons(PORT);
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(PORT);
 	addr.sin_addr.s_addr = INADDR_ANY;
 
-	/* binding socket */	
+	/* binding socket */
 	ret = bind(rsock, (struct sockaddr *)&addr, sizeof(addr));
 
-	if (ret < 0) {
+	if (ret < 0)
+	{
 		fprintf(stderr, "Error. Cannot bind socket\n");
 		return -1;
 	}
 
-	while(1) {
-
+	while (1)
+	{
 		/* listen socket */
 		listen(rsock, WAIT_QUEUE_LEN);
 
