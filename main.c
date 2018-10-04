@@ -30,7 +30,7 @@ static void set_signal_handler(int signame)
 
 static void signal_handler(int signame)
 {
-	printf("simple-server stopped.\n");
+	printf("Signal(%d) : simple-server stopped.\n", signame);
 	exit(0);
 }
 

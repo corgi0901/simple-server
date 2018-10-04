@@ -16,7 +16,6 @@ static header_list *create_header(char *header_str)
 {
 	int key_len, value_len;
 	char *key, *value;
-	int i = 0;
 
 	header_list *item = (header_list *)calloc(sizeof(header_list), 1);
 
@@ -142,7 +141,7 @@ int parse_request_header(request_info *info, char *header_str)
 
 	int i;
 	char *item_str;
-	header_list *item, *last;
+	header_list *item = NULL, *last = NULL;
 
 	for (count = 0; token != NULL && count < MAX_HEADER_NUM; count++)
 	{

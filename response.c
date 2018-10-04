@@ -145,7 +145,11 @@ int send_response(int fd, response_info *info)
 	memcpy(send_buff + buf_len, info->body, body_size);
 	buf_len += body_size;
 
-	write(fd, send_buff, buf_len);
+	if (write(fd, send_buff, buf_len) < 0)
+	{
+		printf("send message failed\n");
+	}
+
 	free(send_buff);
 
 	return 0;
