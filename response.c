@@ -9,18 +9,18 @@
 
 response_info *create_response_info(void)
 {
-	response_info *info = (response_info *)calloc(sizeof(response_info), 1);
+	response_info *info = (response_info *)calloc(1, sizeof(response_info));
 	return info;
 }
 
 int set_status_line(response_info *info, char *version, int code, char *phrase)
 {
-	info->status_line.version = (char *)calloc(sizeof(char), strlen(version) + 1);
+	info->status_line.version = (char *)calloc(strlen(version) + 1, sizeof(char));
 	strcpy(info->status_line.version, version);
 
 	info->status_line.code = code;
 
-	info->status_line.phrase = (char *)calloc(sizeof(char), strlen(phrase) + 1);
+	info->status_line.phrase = (char *)calloc(strlen(phrase) + 1, sizeof(char));
 	strcpy(info->status_line.phrase, phrase);
 
 	return 0;
@@ -29,12 +29,12 @@ int set_status_line(response_info *info, char *version, int code, char *phrase)
 int add_response_header(response_info *info, char *key, char *value)
 {
 	header_list *p;
-	header_list *item = (header_list *)calloc(sizeof(header_list), 1);
+	header_list *item = (header_list *)calloc(1, sizeof(header_list));
 
-	item->key = (char *)calloc(sizeof(char), strlen(key) + 1);
+	item->key = (char *)calloc(strlen(key) + 1, sizeof(char));
 	strcpy(item->key, key);
 
-	item->value = (char *)calloc(sizeof(char), strlen(value) + 1);
+	item->value = (char *)calloc(strlen(value) + 1, sizeof(char));
 	strcpy(item->value, value);
 
 	item->next = NULL;
@@ -62,7 +62,7 @@ int set_response_body(response_info *info, char *body, size_t size)
 
 	add_response_header(info, "content-length", size_str);
 
-	info->body = (char *)calloc(sizeof(char), size + 1);
+	info->body = (char *)calloc(size + 1, sizeof(char));
 	memcpy(info->body, body, size);
 
 	return 0;
@@ -73,7 +73,7 @@ int send_response(int fd, response_info *info)
 {
 	size_t buf_size = BUFF_UNIT;
 	size_t buf_len = 0;
-	char *send_buff = (char *)calloc(sizeof(char), buf_size);
+	char *send_buff = (char *)calloc(buf_size, sizeof(char));
 
 	char status_line[512];
 	size_t status_size;
